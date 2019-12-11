@@ -29,9 +29,13 @@ export enum UserPrivilegeEnum {
     ALL = 'all',
 }
 
-@Injectable()
-export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser>
-    implements CanActivate {
+export interface CacheOptionsInterface {
+    cacheLabelFn: (a: number) => string;
+    cacheTime: number;
+}
+
+
+export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser> {
     constructor(
         private userRepository: Repository<UserType>,
         private readonly reflector: Reflector,
@@ -51,17 +55,19 @@ export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser>
         return jwt.encode(data, jwtSignature);
     }
 
-    canActivate(context: ExecutionContext): Promise<boolean> {
+
+    canActivate(context: ExecutionContext, cache?: CacheOptionsInterface): Promise<boolean> {
         const request: CustomRequest<UserType> = context
             .switchToHttp()
             .getRequest();
         const roles: string[] = this.reflector.get('roles', context.getHandler());
-        return this.validateRequest(request, roles);
+        return this.validateRequest(request, roles, cache);
     }
 
     private async validateRequest(
         request: CustomRequest<UserType>,
-        roles: string[] | null = null
+        roles: string[] | null = null,
+        cacheOption?: CacheOptionsInterface
     ): Promise<boolean> {
         let userData: JwtDataType;
 
@@ -82,10 +88,13 @@ export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser>
                 throw new UnauthorizedException('token not valid');
             }
             // const user: User = await this.userRepository.findOne(userData.id);
-            const user: UserType | undefined = await this.userRepository
+            let query = await this.userRepository
                 .createQueryBuilder('user')
-                .where('user.id = :id', {id: userData.id})
-                .getOne();
+                .where('user.id = :id', {id: userData.id});
+            if (cacheOption) {
+                query = query.cache(cacheOption.cacheLabelFn(userData.id), cacheOption.cacheTime)
+            }
+            const user: UserType | undefined = await query.getOne();
             if (!user) {
                 throw new UnauthorizedException('token not valid');
             }
