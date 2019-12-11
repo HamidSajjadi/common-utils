@@ -2,10 +2,10 @@
   "name": "huma-nestjs-common-utils",
   "version": "0.0.2",
   "description": "",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
-    "build/src"
+    "build"
   ],
   "license": "Apache-2.0",
   "keywords": [],
