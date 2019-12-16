@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import * as jwt from 'jwt-simple';
 import * as nodemailer from 'nodemailer';
-import kavenegar from 'kavenegar';
+import kavenegar = require('kavenegar');
 
 export interface BaseJwtPayload {
   id?: number;

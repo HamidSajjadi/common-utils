@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("crypto");
 const jwt = require("jwt-simple");
 const nodemailer = require("nodemailer");
-const kavenegar_1 = require("kavenegar");
+const kavenegar = require("kavenegar");
 function getNow() {
     return Math.floor(new Date().getTime() / 1000);
 }
@@ -37,7 +37,7 @@ function decodeJwtToken(token, tokenSignature) {
 }
 exports.decodeJwtToken = decodeJwtToken;
 function sendSMS(phoneNumber, code) {
-    const api = kavenegar_1.default.KavenegarApi({
+    const api = kavenegar.KavenegarApi({
         apikey: '3675714248525931465A777542596762537A564C6E4D5946566164727A307135',
     });
     return new Promise((resolve, reject) => {
