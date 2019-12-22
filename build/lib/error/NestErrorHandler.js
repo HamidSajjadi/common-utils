@@ -4,6 +4,5 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./error.handler"));
-__export(require("./error.interceptor"));
 __export(require("./postgres-error-code.enum"));
 //# sourceMappingURL=NestErrorHandler.js.map

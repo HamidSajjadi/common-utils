@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const jwt = require("jwt-simple");
 const nodemailer = require("nodemailer");
 const kavenegar = require("kavenegar");
+const camelcase_1 = require("camelcase");
 function getNow() {
     return Math.floor(new Date().getTime() / 1000);
 }
@@ -130,4 +131,28 @@ function strToEpoch(timeStr) {
     return null;
 }
 exports.strToEpoch = strToEpoch;
+/**
+ * if input is stinrg, turn it to camel case
+ * if input is object, turns it keys (not values to camel case)
+ * @param input string or object to convert
+ * @param values whether the values should be converted or not
+ */
+function toCamelCase(input, values = false) {
+    if (typeof input === 'string') {
+        return camelcase_1.default(input);
+    }
+    const output = {};
+    for (const inputKey in input) {
+        if (input.hasOwnProperty(inputKey)) {
+            if (typeof input[inputKey] === 'object') {
+                output[camelcase_1.default(inputKey)] = toCamelCase(input[inputKey], values);
+            }
+            else {
+                output[camelcase_1.default(inputKey)] = values ? camelcase_1.default(input[inputKey]) : input[inputKey];
+            }
+        }
+    }
+    return output;
+}
+exports.toCamelCase = toCamelCase;
 //# sourceMappingURL=CommonUtilities.js.map

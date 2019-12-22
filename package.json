@@ -24,9 +24,11 @@
   "dependencies": {
     "@nestjs/common": "^6.10.10",
     "@nestjs/core": "^6.10.10",
+    "@types/camelcase": "^5.2.0",
     "@types/express": "^4.17.2",
     "@types/jwt-simple": "^0.5.33",
     "@types/nodemailer": "^6.2.2",
+    "camelcase": "^5.3.1",
     "express": "^4.17.1",
     "jwt-simple": "^0.5.6",
     "kavenegar": "^1.1.4",

@@ -1,3 +1,4 @@
+import { ObjectLiteral } from "typeorm";
 export interface BaseJwtPayload {
     id?: number;
     iat?: number;
@@ -46,3 +47,10 @@ export declare function sendEmail(options: EmailOptions, smtpConfig: SmtpServerC
  * @returns {number | null}
  */
 export declare function strToEpoch(timeStr: string): number | null;
+/**
+ * if input is stinrg, turn it to camel case
+ * if input is object, turns it keys (not values to camel case)
+ * @param input string or object to convert
+ * @param values whether the values should be converted or not
+ */
+export declare function toCamelCase(input: string | ObjectLiteral, values?: boolean): string | ObjectLiteral;
