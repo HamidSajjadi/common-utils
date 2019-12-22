@@ -53,4 +53,4 @@ export declare function strToEpoch(timeStr: string): number | null;
  * @param input string or object to convert
  * @param values whether the values should be converted or not
  */
-export declare function toCamelCase(input: string | ObjectLiteral, values?: boolean): string | ObjectLiteral;
+export declare function toCamelCase<T>(input: string | ObjectLiteral, values?: boolean): string | T;

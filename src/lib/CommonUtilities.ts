@@ -183,7 +183,7 @@ export function strToEpoch(timeStr: string) {
  * @param input string or object to convert
  * @param values whether the values should be converted or not
  */
-export function toCamelCase(input: string | ObjectLiteral, values = false): string | ObjectLiteral {
+export function toCamelCase<T>(input: string | ObjectLiteral, values = false): string | T {
     if (typeof input === 'string') {
         return camelCase(input);
     }
@@ -197,6 +197,6 @@ export function toCamelCase(input: string | ObjectLiteral, values = false): stri
             }
         }
     }
-    return output;
+    return output as T;
 
 }
