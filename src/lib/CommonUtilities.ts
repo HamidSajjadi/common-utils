@@ -184,16 +184,17 @@ export function strToEpoch(timeStr: string) {
  * @param values whether the values should be converted or not
  */
 export function toCamelCase<T>(input: string | ObjectLiteral, values = false): string | T {
+
     if (typeof input === 'string') {
         return camelCase(input);
     }
     const output: ObjectLiteral = {};
     for (const inputKey in input) {
         if (input.hasOwnProperty(inputKey)) {
-            if (typeof input[inputKey] === 'object') {
+            if (typeof input[inputKey] === 'object' && input[inputKey] !== null) {
                 output[camelCase(inputKey)] = toCamelCase(input[inputKey], values);
             } else {
-                output[camelCase(inputKey)] = values ? camelCase(input[inputKey]) : input[inputKey]
+                output[camelCase(inputKey)] = values && typeof input[inputKey] === 'string' ? camelCase(input[inputKey]) : input[inputKey]
             }
         }
     }

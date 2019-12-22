@@ -144,11 +144,11 @@ function toCamelCase(input, values = false) {
     const output = {};
     for (const inputKey in input) {
         if (input.hasOwnProperty(inputKey)) {
-            if (typeof input[inputKey] === 'object') {
+            if (typeof input[inputKey] === 'object' && input[inputKey] !== null) {
                 output[camelcase_1.default(inputKey)] = toCamelCase(input[inputKey], values);
             }
             else {
-                output[camelcase_1.default(inputKey)] = values ? camelcase_1.default(input[inputKey]) : input[inputKey];
+                output[camelcase_1.default(inputKey)] = values && typeof input[inputKey] === 'string' ? camelcase_1.default(input[inputKey]) : input[inputKey];
             }
         }
     }
