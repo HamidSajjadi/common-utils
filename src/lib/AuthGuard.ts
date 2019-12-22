@@ -1,14 +1,14 @@
 import {
-    CanActivate,
     ExecutionContext,
     ForbiddenException,
-    Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
 import {Repository} from 'typeorm';
 import {Reflector} from '@nestjs/core';
 import {Request} from 'express';
 import * as jwt from 'jwt-simple';
+
+
 
 interface BaseUser {
     privilege: string;
