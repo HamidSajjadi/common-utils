@@ -1,12 +1,16 @@
 import { ExecutionContext } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
 interface BaseUser {
     privilege: string;
     id: number;
 }
 interface JwtBaseData {
     iat?: number;
+}
+interface CustomRequest<T extends BaseUser> extends Request {
+    user: T;
 }
 export declare enum UserPrivilegeEnum {
     USER = "user",
@@ -17,6 +21,10 @@ export interface CacheOptionsInterface {
     cacheLabelFn: (a: number) => string;
     cacheTime: number;
 }
+interface CanActivateOptionsInterface<T> {
+    cacheOption?: CacheOptionsInterface;
+    qb?: SelectQueryBuilder<T>;
+}
 export declare class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser> {
     private userRepository;
     private readonly reflector;
@@ -24,7 +32,7 @@ export declare class AuthGuard<UserType extends BaseUser, JwtDataType extends Ba
     constructor(userRepository: Repository<UserType>, reflector: Reflector, jwtSignature: string);
     static decodeJwtToken<U extends BaseUser>(token: string, jwtSignature: string): U;
     static encodeJwtData<U extends JwtBaseData>(data: U, jwtSignature: string): string;
-    canActivate(context: ExecutionContext, cache?: CacheOptionsInterface): Promise<boolean>;
-    private validateRequest;
+    canActivate(context: ExecutionContext, options: CanActivateOptionsInterface<UserType>): Promise<boolean>;
+    validateRequest(request: CustomRequest<UserType>, roles?: string[] | null, options?: CanActivateOptionsInterface<UserType>): Promise<JwtDataType | boolean>;
 }
 export {};

@@ -21,14 +21,15 @@ class AuthGuard {
         data.iat = Math.floor(new Date().getTime() / 1000);
         return jwt.encode(data, jwtSignature);
     }
-    canActivate(context, cache) {
+    async canActivate(context, options) {
         const request = context
             .switchToHttp()
             .getRequest();
         const roles = this.reflector.get('roles', context.getHandler());
-        return this.validateRequest(request, roles, cache);
+        const userData = await this.validateRequest(request, roles, options);
+        return !!userData;
     }
-    async validateRequest(request, roles = null, cacheOption) {
+    async validateRequest(request, roles = null, options = {}) {
         let userData;
         /** we are using this guard globally,
          * so they will be some routes with no need to be authorized using this guard
@@ -44,12 +45,13 @@ class AuthGuard {
                 throw new common_1.UnauthorizedException('token not valid');
             }
             // const user: User = await this.userRepository.findOne(userData.id);
-            let query = await this.userRepository
+            let query = options.qb || this.userRepository
                 .createQueryBuilder('user')
-                .where('user.id = :id', { id: userData.id });
-            if (cacheOption) {
-                query = query.cache(cacheOption.cacheLabelFn(userData.id), cacheOption.cacheTime);
+                .where('user.id = :id');
+            if (options.cacheOption) {
+                query = query.cache(options.cacheOption.cacheLabelFn(userData.id), options.cacheOption.cacheTime);
             }
+            query.setParameters(userData);
             const user = await query.getOne();
             if (!user) {
                 throw new common_1.UnauthorizedException('token not valid');
@@ -63,7 +65,7 @@ class AuthGuard {
              */
             if (request.user.privilege &&
                 request.user.privilege === UserPrivilegeEnum.ADMIN) {
-                return true;
+                return userData;
             }
         }
         /**

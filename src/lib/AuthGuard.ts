@@ -1,13 +1,8 @@
-import {
-    ExecutionContext,
-    ForbiddenException,
-    UnauthorizedException,
-} from '@nestjs/common';
-import {Repository} from 'typeorm';
+import {ExecutionContext, ForbiddenException, UnauthorizedException,} from '@nestjs/common';
+import {Repository, SelectQueryBuilder} from 'typeorm';
 import {Reflector} from '@nestjs/core';
 import {Request} from 'express';
 import * as jwt from 'jwt-simple';
-
 
 
 interface BaseUser {
@@ -34,6 +29,11 @@ export interface CacheOptionsInterface {
     cacheTime: number;
 }
 
+interface CanActivateOptionsInterface<T> {
+    cacheOption?: CacheOptionsInterface,
+    qb?: SelectQueryBuilder<T>
+
+}
 
 export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser> {
     constructor(
@@ -56,19 +56,23 @@ export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser> 
     }
 
 
-    canActivate(context: ExecutionContext, cache?: CacheOptionsInterface): Promise<boolean> {
+    async canActivate(
+        context: ExecutionContext,
+        options: CanActivateOptionsInterface<UserType>
+    ): Promise<boolean> {
         const request: CustomRequest<UserType> = context
             .switchToHttp()
             .getRequest();
         const roles: string[] = this.reflector.get('roles', context.getHandler());
-        return this.validateRequest(request, roles, cache);
+        const userData = await this.validateRequest(request, roles, options);
+        return !!userData;
     }
 
-    private async validateRequest(
+    async validateRequest(
         request: CustomRequest<UserType>,
         roles: string[] | null = null,
-        cacheOption?: CacheOptionsInterface
-    ): Promise<boolean> {
+        options: CanActivateOptionsInterface<UserType> = {}
+    ): Promise<JwtDataType | boolean> {
         let userData: JwtDataType;
 
         /** we are using this guard globally,
@@ -88,12 +92,13 @@ export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser> 
                 throw new UnauthorizedException('token not valid');
             }
             // const user: User = await this.userRepository.findOne(userData.id);
-            let query = await this.userRepository
+            let query = options.qb || this.userRepository
                 .createQueryBuilder('user')
-                .where('user.id = :id', {id: userData.id});
-            if (cacheOption) {
-                query = query.cache(cacheOption.cacheLabelFn(userData.id), cacheOption.cacheTime)
+                .where('user.id = :id');
+            if (options.cacheOption) {
+                query = query.cache(options.cacheOption.cacheLabelFn(userData.id), options.cacheOption.cacheTime)
             }
+            query.setParameters(userData);
             const user: UserType | undefined = await query.getOne();
             if (!user) {
                 throw new UnauthorizedException('token not valid');
@@ -110,7 +115,7 @@ export class AuthGuard<UserType extends BaseUser, JwtDataType extends BaseUser> 
                 request.user.privilege &&
                 request.user.privilege === UserPrivilegeEnum.ADMIN
             ) {
-                return true;
+                return userData;
             }
         }
 
