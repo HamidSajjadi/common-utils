@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("crypto");
 const jwt = require("jwt-simple");
 const nodemailer = require("nodemailer");
-const kavenegar = require("kavenegar");
 const camelcase_1 = require("camelcase");
+const kavenegar = require("kavenegar");
 function getNow() {
     return Math.floor(new Date().getTime() / 1000);
 }
@@ -144,7 +144,14 @@ function toCamelCase(input, values = false) {
     const output = {};
     for (const inputKey in input) {
         if (input.hasOwnProperty(inputKey)) {
-            if (typeof input[inputKey] === 'object' && input[inputKey] !== null) {
+            if (Array.isArray(input[inputKey])) {
+                const tempArray = [];
+                for (const element of input[inputKey]) {
+                    tempArray.push(toCamelCase(element, values));
+                }
+                output[camelcase_1.default(inputKey)] = tempArray;
+            }
+            else if (typeof input[inputKey] === 'object' && input[inputKey] !== null) {
                 output[camelcase_1.default(inputKey)] = toCamelCase(input[inputKey], values);
             }
             else {

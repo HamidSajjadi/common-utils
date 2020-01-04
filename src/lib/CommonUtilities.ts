@@ -1,9 +1,9 @@
 import * as crypto from 'crypto';
 import * as jwt from 'jwt-simple';
 import * as nodemailer from 'nodemailer';
-import kavenegar = require('kavenegar');
 import {ObjectLiteral} from "typeorm";
 import camelCase from 'camelcase';
+import kavenegar = require('kavenegar');
 
 export interface BaseJwtPayload {
     id?: number;
@@ -191,7 +191,13 @@ export function toCamelCase<T>(input: string | ObjectLiteral, values = false): s
     const output: ObjectLiteral = {};
     for (const inputKey in input) {
         if (input.hasOwnProperty(inputKey)) {
-            if (typeof input[inputKey] === 'object' && input[inputKey] !== null) {
+            if (Array.isArray(input[inputKey])) {
+                const tempArray = [];
+                for (const element of input[inputKey]) {
+                    tempArray.push(toCamelCase(element, values));
+                }
+                output[camelCase(inputKey)] = tempArray;
+            } else if (typeof input[inputKey] === 'object' && input[inputKey] !== null) {
                 output[camelCase(inputKey)] = toCamelCase(input[inputKey], values);
             } else {
                 output[camelCase(inputKey)] = values && typeof input[inputKey] === 'string' ? camelCase(input[inputKey]) : input[inputKey]
