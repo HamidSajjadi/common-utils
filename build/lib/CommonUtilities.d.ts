@@ -54,3 +54,4 @@ export declare function strToEpoch(timeStr: string): number | null;
  * @param values whether the values should be converted or not
  */
 export declare function toCamelCase<T>(input: string | ObjectLiteral, values?: boolean): string | T;
+export declare function ensureDir(dirPath: string): Promise<string>;

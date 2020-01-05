@@ -5,6 +5,7 @@ const jwt = require("jwt-simple");
 const nodemailer = require("nodemailer");
 const camelcase_1 = require("camelcase");
 const kavenegar = require("kavenegar");
+const mkdirp = require("mkdirp");
 function getNow() {
     return Math.floor(new Date().getTime() / 1000);
 }
@@ -147,13 +148,16 @@ function toCamelCase(input, values = false) {
             if (Array.isArray(input[inputKey])) {
                 const tempArray = [];
                 for (const element of input[inputKey]) {
+                    // array element is string, do not convert it unless values option is true
                     if (typeof element === 'string' && !values) {
                         tempArray.push(element);
+                        // if array element type is not object, do not convert it
                     }
                     else if (typeof element !== 'object') {
                         tempArray.push(element);
                     }
                     else {
+                        // go deep if array element itself is an object
                         tempArray.push(toCamelCase(element, values));
                     }
                 }
@@ -170,4 +174,17 @@ function toCamelCase(input, values = false) {
     return output;
 }
 exports.toCamelCase = toCamelCase;
+function ensureDir(dirPath) {
+    return new Promise((resolve, reject) => {
+        mkdirp(dirPath, err => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(dirPath);
+            }
+        });
+    });
+}
+exports.ensureDir = ensureDir;
 //# sourceMappingURL=CommonUtilities.js.map
