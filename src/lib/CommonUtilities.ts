@@ -4,6 +4,7 @@ import * as nodemailer from 'nodemailer';
 import {ObjectLiteral} from "typeorm";
 import camelCase from 'camelcase';
 import kavenegar = require('kavenegar');
+import mkdirp = require("mkdirp");
 
 export interface BaseJwtPayload {
     id?: number;
@@ -216,4 +217,17 @@ export function toCamelCase<T>(input: string | ObjectLiteral, values = false): s
     }
     return output as T;
 
+}
+
+
+export function ensureDir(dirPath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        mkdirp(dirPath, err => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(dirPath);
+            }
+        });
+    });
 }
