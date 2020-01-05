@@ -147,7 +147,15 @@ function toCamelCase(input, values = false) {
             if (Array.isArray(input[inputKey])) {
                 const tempArray = [];
                 for (const element of input[inputKey]) {
-                    tempArray.push(toCamelCase(element, values));
+                    if (typeof element === 'string' && !values) {
+                        tempArray.push(element);
+                    }
+                    else if (typeof element !== 'object') {
+                        tempArray.push(element);
+                    }
+                    else {
+                        tempArray.push(toCamelCase(element, values));
+                    }
                 }
                 output[camelcase_1.default(inputKey)] = tempArray;
             }
